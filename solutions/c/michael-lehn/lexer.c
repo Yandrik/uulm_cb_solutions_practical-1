@@ -94,7 +94,7 @@ scanFloat(double *value)
     if (ch.val == 'e' || ch.val == 'E') {
 	// consume 'e' or 'E'
 	nextCh();
-	double exponent = 1;
+	double exponent = 0;
 	bool negSign = false;
 	// scan (optional) sign of exponent
 	while (ch.val == '+' || ch.val == '-') {
@@ -116,7 +116,7 @@ scanFloat(double *value)
 	if (negSign) {
 	    exponent = -exponent;
 	}
-	val = pow(val, exponent);
+	val = val * pow(10, exponent);
     }
     *value = val;
     return FLOAT_LITERAL;
