@@ -1,0 +1,121 @@
+\subsection{Multiplicative Expression}
+
+\begin{grammar}
+\nonterminal{multiplicative-expression}
+    \produces
+	\nonterminal{power-expression} \\
+    \produces
+	\nonterminal{multiplicative-expression}
+	\lexkeyword{*}
+	\nonterminal{power-expression} \\
+    \produces
+	\nonterminal{multiplicative-expression}
+	\lexkeyword{/}
+	\nonterminal{power-expression} \\
+\end{grammar}
+
+\subsubsection{Eliminating left recursion (in BNF Form)}
+
+Eliminating left recursion leads to
+\begin{grammar}
+\underbrace{\nonterminal{multiplicative-expression}}_{=: M}
+    \produces
+	\underbrace{\nonterminal{power-expression}}_{=: P}
+	\underbrace{\nonterminal{multiplicative-expression'}}_{=:M'}\\
+\nonterminal{multiplicative-expression'}
+    \produces
+	\lexkeyword{*}
+	\nonterminal{power-expression} \nonterminal{multiplicative-expression'}
+	\\
+    \produces
+	\lexkeyword{/}
+	\nonterminal{power-expression} \nonterminal{multiplicative-expression'}
+	\\
+    \produces
+\end{grammar}\\[-0.5cm]
+\noindent
+
+\paragraph{Item automata for M}
+
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial]
+	(S)[rounded rectangle, draw]
+	{{$[M\to .PM']$}};
+    \node[state]
+	(P)[rounded rectangle, draw,right=of S]
+	{{$[M\to P.M']$}};
+    \node[state,accepting]
+	(M_)[rounded rectangle, draw,right=of P]
+	{{$[M\to PM'.]$}};
+    \path[->] (S) edge  node [above] {P} (P);
+    \path[->] (P) edge  node [above] {M'} (M_);
+\end{tikzpicture}
+\]
+
+\paragraph{Item automata for M'}
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial,accepting]
+	(S)[rounded rectangle, draw]
+	{
+	    {$[M'\to .*PM']$}\\
+	    {$[M'\to ./PM']$}\\
+	    {$[M'\to .]$}
+	};
+    \node[state]
+	(Mul)[rounded rectangle, draw,right=of S]
+	{{$[M'\to *.PM']$}};
+    \node[state]
+	(Div)[rounded rectangle, draw,below=of Mul]
+	{{$[M'\to /.PM']$}};
+    \node[state]
+	(P)[rounded rectangle, draw,right=of Mul]
+	{
+	    {$[M'\to *P.M']$} \\
+	    {$[M'\to /P.M']$}
+	};
+    \node[state,accepting]
+	(E)[rounded rectangle, draw,right=of P]
+	{
+	    {$[M'\to *PM'.]$} \\
+	    {$[M'\to /PM'.]$}
+	};
+    \path[->] (S) edge  node [above] {\lexkeyword{*}} (Mul);
+    \path[->] (S) edge  node [above] {\lexkeyword{/}} (Div);
+    \path[->] (Mul) edge  node [above] {P} (P);
+    \path[->] (Div) edge  node [above] {P} (P);
+    \path[->] (P) edge  node [above] {M'} (E);
+\end{tikzpicture}
+\]
+
+\subsubsection{Eliminating left recursion (in EBNF Form)}
+
+Expressing the BNF notation in EBNF reveals how the item automata for $M$ and
+$M'$ can be combined in an implementation using a while loop
+checking if the
+current token is in $\mathrm{First}(M') = \{ \lexkeyword{*}, \lexkeyword{/}\}$:
+\begin{grammar}
+\underbrace{\nonterminal{multiplicative-expression}}_{= M}
+    \produces
+	\underbrace{\nonterminal{power-expression}}_{= P}
+	\{\;
+	\underbrace{
+	    \nonterminal{multiplicative-op}
+	    \nonterminal{power-expression}
+	    }_{=M'}
+	\}
+	\\
+\nonterminal{multiplicative-op}
+    \produces
+    \lexkeyword{*} \\
+    \produces
+    \lexkeyword{/} \\
+\end{grammar}\\[-0.5cm]
+

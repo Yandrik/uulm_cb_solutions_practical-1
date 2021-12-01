@@ -1,0 +1,53 @@
+\subsection{Unary Expression}
+
+\begin{grammar}
+\underbrace{\nonterminal{unary-expression}}_{=:U}
+    \produces
+	\underbrace{\nonterminal{primary-expression}}_{=:P} \\
+    \produces
+	\lexkeyword{+}
+	\nonterminal{unary-expression} \\
+    \produces
+	\lexkeyword{-}
+	\nonterminal{unary-expression} \\
+\end{grammar}
+
+\paragraph{Item automata for U}
+
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial]
+	(S)[rounded rectangle, draw]
+	{
+	    {$[U\to .P]$} \\
+	    {$[U\to .+U]$} \\
+	    {$[U\to .-U]$}
+	};
+    \node[state]
+	(Plus)[rounded rectangle, draw,below right=2em and 9em of S]
+	{
+	    {$[U\to +.U]$}
+	};
+    \node[state]
+	(Minus)[rounded rectangle, draw,below=of Plus]
+	{
+	    {$[U\to -.U]$}
+	};
+    \node[state,accepting]
+	(E)[rounded rectangle, draw,above right=2em and 9em of Plus]
+	{
+	    {$[U\to P.]$} \\
+	    {$[U\to +U.]$} \\
+	    {$[U\to -U.]$}
+	};
+    \path[->] (S) edge  node [above] {P} (E);
+    \path[->] (S) edge  node [above] {\lexkeyword{+}} (Plus);
+    \path[->] (S) edge  node [above=0.1cm] {\lexkeyword{-}} (Minus);
+    \path[->] (Plus) edge  node [above] {U} (E);
+    \path[->] (Minus) edge  node [above=0.1cm] {U} (E);
+\end{tikzpicture}
+\]
+

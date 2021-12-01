@@ -1,0 +1,126 @@
+\subsection{Additive Expression}
+
+\begin{grammar}
+\nonterminal{additive-expression}
+    \produces
+	\nonterminal{multiplicative-expression} \\
+    \produces
+	\nonterminal{additive-expression}
+	\lexkeyword{+}
+	\nonterminal{multiplicative-expression} \\
+    \produces
+	\nonterminal{additive-expression}
+	\lexkeyword{-}
+	\nonterminal{multiplicative-expression} \\
+\end{grammar}
+
+\subsubsection{Eliminating left recursion}
+
+Eliminating left recursion leads to
+\begin{grammar}
+\underbrace{\nonterminal{additive-expression}}_{=: A}
+    \produces
+	\underbrace{\nonterminal{multiplicative-expression}}_{=: M}
+	\underbrace{\nonterminal{additive-expression'}}_{=:A'}\\
+\nonterminal{additive-expression'}
+    \produces
+	\lexkeyword{+}
+	\nonterminal{multiplicative-expression}
+	\nonterminal{additive-expression'}
+	\\
+    \produces
+	\lexkeyword{-}
+	\nonterminal{multiplicative-expression}
+	\nonterminal{additive-expression'}
+	\\
+    \produces
+\end{grammar}\\[-0.5cm]
+\noindent
+The left associativity of the operators \lexkeyword{+} and \lexkeyword{-} needs
+to be handled manually by the parser.
+
+\paragraph{Item automata for A}
+
+
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial]
+	(S)[rounded rectangle, draw]
+	{{$[A\to .MA']$}};
+    \node[state]
+	(M)[rounded rectangle, draw,right=of S]
+	{{$[A\to M.A']$}};
+    \node[state,accepting]
+	(A_)[rounded rectangle, draw,right=of M]
+	{{$[A\to MA'.]$}};
+    \path[->] (S) edge  node [above] {M} (M);
+    \path[->] (M) edge  node [above] {A'} (A_);
+\end{tikzpicture}
+\]
+
+\paragraph{Item automata for A'}
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial,accepting]
+	(S)[rounded rectangle, draw]
+	{
+	    {$[A'\to .+MA']$}\\
+	    {$[A'\to .-MA']$}\\
+	    {$[A'\to .]$}
+	};
+    \node[state]
+	(Add)[rounded rectangle, draw,right=of S]
+	{{$[A'\to +.MA']$}};
+    \node[state]
+	(Sub)[rounded rectangle, draw,below=of Add]
+	{{$[A'\to -.MA']$}};
+    \node[state]
+	(M)[rounded rectangle, draw,right=of Add]
+	{
+	    {$[A'\to +M.A']$} \\
+	    {$[A'\to -M.A']$}
+	};
+    \node[state,accepting]
+	(E)[rounded rectangle, draw,right=of M]
+	{
+	    {$[A'\to +MA'.]$} \\
+	    {$[A'\to -MA'.]$}
+	};
+    \path[->] (S) edge  node [above] {\lexkeyword{+}} (Add);
+    \path[->] (S) edge  node [above] {\lexkeyword{-}} (Sub);
+    \path[->] (Add) edge  node [above] {M} (M);
+    \path[->] (Sub) edge  node [above] {M} (M);
+    \path[->] (M) edge  node [above] {A'} (E);
+\end{tikzpicture}
+\]
+
+\subsubsection{Eliminating left recursion (in EBNF Form)}
+
+Expressing the BNF notation in EBNF reveals how the item automata for $A$ and
+$A'$ can be combined in an implementation using a while loop
+checking if the
+current token is in $\mathrm{First}(A') = \{ \lexkeyword{+}, \lexkeyword{-}\}$:
+\begin{grammar}
+\underbrace{\nonterminal{additive-expression}}_{= A}
+    \produces
+	\underbrace{\nonterminal{multiplicative-expression}}_{= M}
+	\underbrace{
+	\{\;
+	    \nonterminal{additive-op}
+	    \nonterminal{multiplicative-expression}
+	\}
+	}_{=A'}
+	\\
+\nonterminal{additive-op}
+    \produces
+    \lexkeyword{+} \\
+    \produces
+    \lexkeyword{-} \\
+\end{grammar}\\[-0.5cm]
+

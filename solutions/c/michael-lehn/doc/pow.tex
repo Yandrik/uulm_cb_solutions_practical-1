@@ -1,0 +1,47 @@
+\subsection{Power Expression}
+
+\begin{grammar}
+\underbrace{\nonterminal{power-expression}}_{=:P}
+    \produces
+	\underbrace{\nonterminal{unary-expression}}_{=:U} \\
+    \produces
+	\nonterminal{unary-expression}
+	\lexkeyword{\textasciicircum}
+	\nonterminal{power-expression} \\
+\end{grammar}
+
+\paragraph{Item automata for P}
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial]
+	(S)[rounded rectangle, draw]
+	{
+	    {$[P\to .U\,\hat{}\, P]$} \\
+	    {$[P\to .U]$}
+	};
+    \node[state,accepting]
+	(U)[rounded rectangle, draw,right=of S]
+	{
+	    {$[P\to U.\,\hat{}\, P]$} \\
+	    {$[P\to U.]$}
+	};
+    \node[state]
+	(Hat)[rounded rectangle, draw,right=of U]
+	{
+	    {$[P\to U\,\hat{}\, .P]$}
+	};
+    \node[state,accepting]
+	(P)[rounded rectangle, draw,right=of Hat]
+	{
+	    {$[P\to U\,\hat{}\, P.]$}
+	};
+    \path[->] (S) edge  node [above] {U} (U);
+    \path[->] (U) edge  node [above] {\lexkeyword{\textasciicircum}} (Hat);
+    \path[->] (Hat) edge  node [above] {P} (P);
+\end{tikzpicture}
+\]
+
+
