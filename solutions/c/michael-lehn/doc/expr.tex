@@ -1,0 +1,43 @@
+\subsection{Expression}
+
+\begin{grammar}
+\underbrace{\nonterminal{expression}}_{=:E}
+    \produces
+	\lexkeyword{EOL} \\
+    \produces
+	\underbrace{\nonterminal{additive-expression}}_{=:A}
+	\lexkeyword{EOL} \\
+\end{grammar}
+
+\paragraph{Item automata for E}
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial]
+	(S)[rounded rectangle, draw]
+	{
+	    {$[E \to .A\,\lexkeyword{EOL}]$}\\
+	    {$[E \to .\lexkeyword{EOL}]$}
+	};
+    \node[state,accepting]
+	(EOL)[rounded rectangle, draw, right=12em of S]
+	{
+	    {$[E \to A\,\lexkeyword{EOL}.]$}\\
+	    {$[E \to \lexkeyword{EOL}.]$}
+	};
+    \node[state]
+	(A)[rounded rectangle, draw, below right=2em and 6em of S]
+	{
+	    {$[E \to A.\,\lexkeyword{EOL}]$}
+	};
+
+    \path[->] (S) edge  node [above] {\lexkeyword{EOL}} (EOL);
+    \path[->] (S) edge  node [below] {A} (A);
+    \path[->] (A) edge  node [below right=0.1em and 0.2em]
+	{\lexkeyword{EOL}} (EOL);
+\end{tikzpicture}
+\]
+
+

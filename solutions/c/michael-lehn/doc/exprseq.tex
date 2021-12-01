@@ -1,0 +1,100 @@
+\subsection{Expression sequence}
+
+\begin{grammar}
+\underbrace{\nonterminal{expression-sequence}}_{=:S}
+    \produces
+	\underbrace{\nonterminal{expression}}_{=:E} \\
+    \produces
+	\nonterminal{expression-sequence}
+	\nonterminal{expression} \\
+\end{grammar}
+
+\subsubsection{Eliminating left recursion}
+
+\begin{grammar}
+\underbrace{\nonterminal{expression-sequence}}_{=:S}
+    \produces
+	\underbrace{\nonterminal{expression}}_{=:E}
+	\underbrace{\nonterminal{expression-sequence'}}_{=:S'} \\
+\nonterminal{expression-sequence'}
+    \produces
+	\nonterminal{expression}
+	\nonterminal{expression-sequence'}
+	\\
+    \produces
+\end{grammar}
+
+
+\paragraph{Item automata for S}
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial]
+	(S)[rounded rectangle, draw]
+	{
+	    {$[S \to .ES']$}
+	};
+    \node[state]
+	(E)[rounded rectangle, draw, right=of S]
+	{
+	    {$[S \to E.S']$}
+	};
+    \node[state]
+	(End)[rounded rectangle, draw, right=of E]
+	{
+	    {$[S \to ES'.]$}
+	};
+
+    \path[->] (S) edge  node [above] {E} (E);
+    \path[->] (E) edge  node [above] {S'} (End);
+\end{tikzpicture}
+\]
+\paragraph{Item automata for S'}
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial,accepting]
+	(S)[rounded rectangle, draw]
+	{
+	    {$[S'\to .*ES']$}\\
+	    {$[S'\to .]$}
+	};
+    \node[state]
+	(E)[rounded rectangle, draw,right=of S]
+	{
+	    {$[S'\to E.S']$}
+	};
+    \node[state,accepting]
+	(End)[rounded rectangle, draw,right=of E]
+	{
+	    {$[S'\to ES'.]$}
+	};
+    \path[->] (S) edge  node [above] {E} (E);
+    \path[->] (E) edge  node [above] {S'} (End);
+\end{tikzpicture}
+\]
+
+
+\subsubsection{Eliminating left recursion (in EBNF Form)}
+
+Expressing the BNF notation in EBNF reveals how the item automata for $S$ and
+$S'$ can be combined in an implementation using a do-while loop:
+
+\begin{grammar}
+\underbrace{\nonterminal{expression-sequence}}_{= S}
+    \produces
+	\underbrace{\nonterminal{expression}}_{= E}
+	\underbrace{
+	\{\;
+	    \nonterminal{expression}
+	\}
+	}_{= E'}
+	\\
+\end{grammar}\\[-0.5cm]
+In the case the loop can terminate if the current token is
+$\mathrm{Follow}(E') = \{ \lexkeyword{EOI} \}$.
+

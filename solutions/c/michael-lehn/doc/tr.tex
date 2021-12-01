@@ -1,0 +1,122 @@
+\documentclass[
+    a4paper
+]{article}
+\usepackage{amsmath,tikz}
+\usetikzlibrary[automata, positioning]
+\usetikzlibrary[shapes,arrows]
+
+\usepackage[T1]{fontenc}
+
+%------------------------------------------------------------------------------
+% environment for grammars
+%------------------------------------------------------------------------------
+\definecolor{syntax}{rgb}{0,0,0}%
+\newlength{\grammarwidth}%
+\setlength{\grammarwidth}{\textwidth}%
+\addtolength{\grammarwidth}{-2\fboxsep}%
+\newenvironment{grammar}{%
+   \smallskip%
+   \noindent%
+   \color{syntax}%
+   \begin{eqnarray*}
+}{%
+   \end{eqnarray*}
+   \smallskip%
+}
+\newcommand{\produces}{& \longrightarrow &~}
+\newcommand{\nonterminal}[1]{%
+   \relax%
+   \ifmmode\langle\mbox{#1}\index{#1}\rangle~%
+   %\else$\langle\mbox{#1}\index{#1}\rangle$%
+   \else$\langle${#1}\index{#1}$\rangle$%
+   \fi%
+}
+\newcommand{\keyword}[1]{\textbf{#1}\index{#1}}
+\newcommand{\lexkeyword}[1]{\mbox{\keyword{#1}}~}
+
+
+
+\begin{document}
+\section{Lexical elements}
+\input{lex}
+
+\newpage
+\section{Grammar (with left recursion)}
+
+\begin{grammar}
+\nonterminal{translation-unit}
+    \produces
+	\lexkeyword{EOI} \\
+    \produces
+	\nonterminal{expression-sequence}
+	\lexkeyword{EOI} \\
+\nonterminal{expression-sequence}
+    \produces
+	\nonterminal{expression} \\
+    \produces
+	\nonterminal{expression-sequence}
+	\nonterminal{expression} \\
+\nonterminal{expression}
+    \produces
+	\lexkeyword{EOL} \\
+    \produces
+	\nonterminal{additive-expression}
+	\lexkeyword{EOL} \\
+\nonterminal{additive-expression}
+    \produces
+	\nonterminal{multiplicative-expression} \\
+    \produces
+	\nonterminal{additive-expression}
+	\lexkeyword{+}
+	\nonterminal{multiplicative-expression} \\
+    \produces
+	\nonterminal{additive-expression}
+	\lexkeyword{-}
+	\nonterminal{multiplicative-expression} \\
+\nonterminal{multiplicative-expression}
+    \produces
+	\nonterminal{power-expression} \\
+    \produces
+	\nonterminal{multiplicative-expression}
+	\lexkeyword{*}
+	\nonterminal{power-expression} \\
+    \produces
+	\nonterminal{multiplicative-expression}
+	\lexkeyword{/}
+	\nonterminal{power-expression} \\
+\nonterminal{power-expression}
+    \produces
+	\nonterminal{unary-expression} \\
+    \produces
+	\nonterminal{unary-expression}
+	\lexkeyword{\textasciicircum}
+	\nonterminal{power-expression} \\
+\nonterminal{unary-expression}
+    \produces
+	\nonterminal{primary-expression} \\
+    \produces
+	\lexkeyword{+}
+	\nonterminal{unary-expression} \\
+    \produces
+	\lexkeyword{-}
+	\nonterminal{unary-expression} \\
+\nonterminal{primary-expression}
+    \produces
+	\nonterminal{float-literal} \\
+    \produces
+	\lexkeyword{(}
+	\nonterminal{additive-expression}
+	\lexkeyword{)}\\
+\end{grammar}
+
+\newpage\input{exprseq}
+\newpage\input{expr}
+\newpage\input{add}
+\newpage\input{mul}
+\newpage\input{pow}
+\newpage\input{unary}
+\newpage\input{prim}
+
+
+
+\end{document}

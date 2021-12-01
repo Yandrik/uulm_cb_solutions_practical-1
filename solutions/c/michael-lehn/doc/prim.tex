@@ -1,0 +1,47 @@
+\subsection{Primary Expression}
+
+\begin{grammar}
+\underbrace{\nonterminal{primary-expression}}_{=:P}
+    \produces
+	\underbrace{\nonterminal{float-literal}}_{=:F} \\
+    \produces
+	\lexkeyword{(}
+	\underbrace{\nonterminal{additive-expression}}_{=:A}
+	\lexkeyword{)}\\
+\end{grammar}
+
+\paragraph{Item automata for P}
+\[
+\begin{tikzpicture}[
+    every text node part/.style={align=center},
+    initial text =
+]
+    \node[state,initial]
+	(S)[rounded rectangle, draw]
+	{
+	    {$[U\to .F]$} \\
+	    {$[U\to .(A)]$}
+	};
+    \node[state]
+	(LP)[rounded rectangle, draw,below right=2em and 5em of S]
+	{
+	    {$[U\to (.A)]$}
+	};
+    \node[state]
+	(A)[rounded rectangle, draw,right=of LP]
+	{
+	    {$[U\to (A.)]$}
+	};
+    \node[state,accepting]
+	(E)[rounded rectangle, draw,above right=2em and 5em of A]
+	{
+	    {$[U\to F.]$} \\
+	    {$[U\to (A).]$}
+	};
+    \path[->] (S) edge  node [above] {F} (E);
+    \path[->] (S) edge  node [above] {\lexkeyword{(}} (LP);
+    \path[->] (LP) edge  node [above] {A} (A);
+    \path[->] (A) edge  node [above] {\lexkeyword{)}} (E);
+\end{tikzpicture}
+\]
+

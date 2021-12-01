@@ -1,0 +1,43 @@
+Input is converted into a sequence of tokens during the lexical analysis.
+Tokens end if the next character is a whitespace character or if the next
+character cannot be added to it.
+
+\subsection{Whitespace characters}
+
+The characters
+` ' (ASCII 32),
+`\textbackslash f' (ASCII 12),
+`\textbackslash v' (ASCII 11) and
+`\textbackslash t' (ASCII 9) are whitespace charakters.
+
+Whitespace characters delimite tokens but are otherwise ignored.
+
+\subsection{Tokens recoginzed}
+
+Recognized token kinds are one of: \\[0.3cm]
+
+
+\begin{tabular}{lp{9cm}}
+\lexkeyword{UNKNOWN}
+    & Illegal character (i.e. not a whitespace and can not be part of any
+    token) was found and consumed.\\[0.2cm]
+\lexkeyword{EOI} & End of input \\[0.2cm]
+\nonterminal{float-literal}
+    & floating point literal matching the regular expression\\
+    & \verb#[0-9]+(([.][0-9]*)([eE][+-]?[0-9]+)?)?#\\
+    & or \\
+    & \verb#[0-9]*(([.][0-9]+)([eE][+-]?[0-9]+)?)?#\\
+    & Note: The first regular expression requires at least one leading digit, the
+    second at least one trailing digit. Hence, \verb#0.# and \verb#.0# are
+    legal, but \verb#.# is not \\[0.2cm]
+\lexkeyword{+} & Plus operator\\[0.2cm]
+\lexkeyword{-} & Minus operator or unary minus\\[0.2cm]
+\lexkeyword{*} & Multiplication operator\\[0.2cm]
+\lexkeyword{/} & Division oprtator \\[0.2cm]
+\lexkeyword{\textasciicircum}  & Power operator \\[0.2cm]
+\lexkeyword{(}  & Left parenthesis \\[0.2cm]
+\lexkeyword{)}  & Right parenthesis\\
+\end{tabular}
+
+
+
