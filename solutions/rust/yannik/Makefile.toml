@@ -1,0 +1,83 @@
+[config]
+skip_core_tasks = true
+
+[env]
+PLANTUML_FILE = "utils/plantuml.jar"
+MODEL_PATH = "model"
+
+
+# ================================================
+#                  META TASKS
+# ================================================
+
+[tasks.default]
+alias = "tasks"
+
+[tasks.tasks]
+command = "cargo"
+description = "Lists all tasks availabe"
+args = ["make", "--list-all-steps"]
+
+
+
+# ================================================
+#                 MODEL TASKS
+# ================================================
+
+[tasks.get_plantuml]
+private = true
+category = "diagrams"
+script_runner = "@duckscript"
+script = '''
+if not is_file ${PLANTUML_FILE}
+  echo plantuml not found, downloading to ${PLANTUML_FILE} from sourceforge...
+  wget -O ${PLANTUML_FILE} https://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+  echo plantuml was downloaded successfully
+else
+  echo plantuml already in utils directory, no download required
+end
+'''
+
+[tasks.diagrams]
+category = "diagrams"
+description = "Compiles all diagrams in the ${MODEL_PATH} folder to png images. Downloads plantuml if needed."
+dependencies = ["get_plantuml"]
+command = "java"
+args = ["-jar", "${PLANTUML_FILE}", "-tpng", "${MODEL_PATH}/*.puml"]
+
+
+# ================================================
+#                 BUILD TASKS
+# ================================================
+
+[tasks.build]
+category = "build"
+description = "builds all artifacts in the project"
+env = { "CARGO_CMD_ARGS" = "build" }
+run_task = { name = [
+  "execute_for_all_rust"
+] }
+
+[tasks.test]
+category = "test"
+description = "executes all tests in the project"
+run_task = { name = [
+  "rust_test"
+] }
+
+[tasks.rust_test]
+category = "test"
+description = "executes all tests in the rust part of the project"
+command = "cargo"
+args = ["test"]
+
+[tasks.check]
+category = "check"
+description = "execute the cargo check command in all Rust crates"
+run_task = { name = [ "rust_check" ] }
+
+[tasks.run_check]
+category = "check"
+description = "executes cargo check in the rust part of the project"
+command = "cargo"
+args = ["check"]
